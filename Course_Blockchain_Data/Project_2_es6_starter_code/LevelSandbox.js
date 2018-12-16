@@ -17,10 +17,9 @@ class LevelSandbox {
         return new Promise((resolve, reject) => {
             self.db.get(key, function (err, value) {
                 if (err) {
-                    console.log('Not found!', err);
                     reject(err);
                 } else {
-                    console.log('Value = ' + value);
+                    console.log('Value got: ' + value);
                     resolve(value);
                 }
             });
@@ -36,7 +35,7 @@ class LevelSandbox {
                     console.log('Block ' + key + ' submission failed', err);
                     reject(err);
                 } else {
-                    resolve(value);
+                    resolve('Block ' + key + ' submission succeed.');
                 }
             });
         })

@@ -26,10 +26,10 @@ class Blockchain {
                     console.log(result);
                 }).catch((err) => { console.log(err) });
             }
-        });
+        }).catch((err) => { reject(err) });
     }
 
-    // Get block height, it is auxiliar method that return the height of the blockchain
+    // Get block height, it is auxiliar method that return the height of the blockchain.
     getBlockHeight() {
         let self = this;
         return new Promise(function (resolve, reject) {
@@ -43,24 +43,32 @@ class Blockchain {
     addBlock(block) {
         let self = this;
         return new Promise((resolve, reject) => {
-            // Block height
+            // Get lock height first.
             self.getBlockHeight().then((height) => {
                 block.height = height + 1;
-            })
-            // UTC timestamp
-            block.time = new Date().getTime().toString().slice(0, -3);
-            // previous block hash
-            if (block.height > 0) {
-                self.getBlock(block.height - 1).then((pre_block) => {
-                    block.previousBlockHash = pre_block.hash;
-                })
-            }
-            // Block hash with SHA256 using newBlock and converting to a string
-            block.hash = SHA256(JSON.stringify(block)).toString();
-            // Add block to db.
-            self.bd.addLevelDBData(block.height, JSON.stringify(block).toString()).then((result) => {
-                resolve(result);
-            }).catch((err) => { reject(err) });
+                // Set block time by UTC timestamp.
+                block.time = new Date().getTime().toString().slice(0, -3);
+                // Get previous block hash if the block height is larger than 0.
+                if (block.height > 0) {
+                    self.getBlock(block.height - 1).then((pre_block) => {
+                        block.previousBlockHash = pre_block.hash;
+                        // Block hash with SHA256 using newBlock and converting to a string
+                        block.hash = SHA256(JSON.stringify(block)).toString();
+                        // Add block to db.
+                        self.bd.addLevelDBData(block.height, JSON.stringify(block).toString()).then((result) => {
+                            resolve(result);
+                        }).catch((err) => { reject(err) });
+                    }).catch((err) => { reject(err) });
+                } else {
+                    // This function will also be used by adding genesis block.
+                    // Block hash with SHA256 using newBlock and converting to a string.
+                    block.hash = SHA256(JSON.stringify(block)).toString();
+                    // Add genesis block to database.
+                    self.bd.addLevelDBData(block.height, JSON.stringify(block).toString()).then((result) => {
+                        resolve(result);
+                    }).catch((err) => { reject(err) });
+                }
+            }).catch((err) => reject(err));
         });
     }
 
@@ -78,15 +86,16 @@ class Blockchain {
     validateBlock(height) {
         let self = this;
         return new Promise((resolve, reject) => {
-            let target_block = self.getBlock(height);
-            let origin_hash = target_block.hash;
-            target_block.hash = ""
-            let new_hash = SHA256(JSON.stringify(target_block)).toString();
-            if (origin_hash === new_hash) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
+            self.getBlock(height).then((target_block) => {
+                let origin_hash = target_block.hash;
+                target_block.hash = ""
+                let new_hash = SHA256(JSON.stringify(target_block)).toString();
+                if (origin_hash === new_hash) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            }).catch((err) => reject(err));
         });
     }
 
