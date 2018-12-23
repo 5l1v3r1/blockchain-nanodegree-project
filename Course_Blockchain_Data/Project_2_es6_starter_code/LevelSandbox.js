@@ -19,7 +19,7 @@ class LevelSandbox {
                 if (err) {
                     reject(err);
                 } else {
-                    console.log('Value got: ' + value);
+                    // console.log('Value got: ' + value);
                     resolve(value);
                 }
             });
