@@ -88,7 +88,7 @@ class Blockchain {
         return new Promise((resolve, reject) => {
             self.getBlock(height).then((target_block) => {
                 let origin_hash = target_block.hash;
-                target_block.hash = ""
+                target_block.hash = "";
                 let new_hash = SHA256(JSON.stringify(target_block)).toString();
                 if (origin_hash === new_hash) {
                     resolve(true);
@@ -100,19 +100,28 @@ class Blockchain {
     }
 
     // Validate Blockchain
-    validateChain() {
+    async validateChain() {
         let self = this;
-        return new Promise((resolve, reject) => {
-            let all_promises = [];
-            self.getBlockHeight().then((total_block_nun) => {
-                for (let height = 0; height < total_block_nun; height++) {
+        let all_promises = [];
+        let err_log = [];
+        try {
+            await self.getBlockHeight().then((block_height) => {
+                console.log("Blocks to be validated: " + (block_height + 1));
+                for (let height = 0; height <= block_height; height++) {
                     all_promises.push(self.validateBlock(height));
                 }
             });
-            Promise.all(all_promises).then((result) => {
-                resolve(result);
-            }).catch((err) => { reject(err) });
-        });
+            await Promise.all(all_promises).then((validation_result) => {
+                for (let i = 0; i < validation_result.length; i++) {
+                    if (validation_result[i] === false) {
+                        err_log.push("Invalid block: " + i)
+                    }
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
+        return err_log;
     }
 
     // Utility Method to Tamper a Block for Test Validation
