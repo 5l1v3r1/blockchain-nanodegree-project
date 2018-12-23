@@ -105,13 +105,11 @@ myBlockChain.getBlock(6).then((block) => {
 myBlockChain.validateChain().then((errorLog) => {
 	if (errorLog.length > 0) {
 		console.log("The chain is not valid:");
-		errorLog.forEach(error => {
-			console.log(error);
-		});
+		console.log("Block errors = " + errorLog.length);
+		console.log("Blocks: " + errorLog);
 	} else {
 		console.log("No errors found, The chain is Valid!");
 	}
 }).catch((error) => {
 	console.log(error);
 })
-
