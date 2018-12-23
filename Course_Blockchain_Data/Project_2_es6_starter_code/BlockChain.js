@@ -114,7 +114,7 @@ class Blockchain {
             await Promise.all(all_promises).then((validation_result) => {
                 for (let i = 0; i < validation_result.length; i++) {
                     if (validation_result[i] === false) {
-                        err_log.push("Invalid block: " + i)
+                        err_log.push(i);
                     }
                 }
             });
