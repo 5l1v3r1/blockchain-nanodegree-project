@@ -10,4 +10,6 @@ It gives a general view of this project and also offers some practical advices.
 Project 2 recommends students to use Promise in their functions. But, async/await sometimes could be easier to understand. You can checkout this post which is recommended by the reviewer:
 https://scotch.io/tutorials/asynchronous-javascript-using-async-await
 
+And for the validation of the chain, remember to check the link between adjacent blocks.
+
 For me, the reviewer's comment really helped a lot!
