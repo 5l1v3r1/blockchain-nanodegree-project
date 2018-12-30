@@ -82,7 +82,7 @@ class Blockchain {
         });
     }
 
-    // Validate if Block is being tampered by Block Height
+    // Validate if a block is modified after creation.
     validateBlock(height) {
         let self = this;
         return new Promise((resolve, reject) => {
@@ -99,25 +99,63 @@ class Blockchain {
         });
     }
 
-    // Validate Blockchain
+    // Make sure the link(hash) to the previous block is valid.
+    validateLink(height) {
+        let self = this;
+        if (height === 0) {
+            return self.validateBlock(0);
+        } else {
+            return new Promise((resolve, reject) => {
+                self.getBlock(height).then((this_block) => {
+                    self.getBlock(height - 1).then((last_block) => {
+                        if (last_block.hash === this_block.previousBlockHash) {
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    }).catch((err) => reject(err));
+                }).catch((err) => reject(err));
+            });
+        }
+    }
+
+    // Validate Blockchain. The validation includes two parts.
+    // Part 1: each block should be valid, check by re-hashing the block.
+    // Part 2: the hash linked the blocks together should be valid, by checking the hash value stored.
     async validateChain() {
         let self = this;
-        let all_promises = [];
-        let err_log = [];
+        let block_validation = [];
+        let link_validation = [];
+        let err_log = new Set();
+
         try {
+            // Push all the validation works into two Promise arrays.
             await self.getBlockHeight().then((block_height) => {
                 console.log("Blocks to be validated: " + (block_height + 1));
                 for (let height = 0; height <= block_height; height++) {
-                    all_promises.push(self.validateBlock(height));
+                    block_validation.push(self.validateBlock(height));
+                    link_validation.push(self.validateLink(height));
                 }
             });
-            await Promise.all(all_promises).then((validation_result) => {
-                for (let i = 0; i < validation_result.length; i++) {
-                    if (validation_result[i] === false) {
-                        err_log.push(i);
+
+            // First check if the block is valid.
+            await Promise.all(block_validation).then((block_result) => {
+                for (let i = 0; i < block_result.length; i++) {
+                    if (block_result[i] === false) {
+                        err_log.add(i);
                     }
                 }
             });
+
+            // Then check the links.
+            await Promise.all(link_validation).then((link_result) => {
+                for (let i = 0; i < link_result.length; i++) {
+                    if (link_result[i] === false) {
+                        err_log.add(i);
+                    }
+                }
+            });
+
         } catch (err) {
             console.log(err);
         }

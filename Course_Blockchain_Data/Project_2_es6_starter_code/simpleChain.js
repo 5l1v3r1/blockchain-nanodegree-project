@@ -103,10 +103,10 @@ myBlockChain.getBlock(6).then((block) => {
 
 // Be careful this only will work if `validateChain` method in Blockchain.js file return a Promise
 myBlockChain.validateChain().then((errorLog) => {
-	if (errorLog.length > 0) {
+	if (errorLog.size > 0) {
 		console.log("The chain is not valid:");
-		console.log("Block errors = " + errorLog.length);
-		console.log("Blocks: " + errorLog);
+		console.log("Block errors = " + errorLog.size);
+		console.log("Invalid blocks: " + [...errorLog]);
 	} else {
 		console.log("No errors found, The chain is Valid!");
 	}
