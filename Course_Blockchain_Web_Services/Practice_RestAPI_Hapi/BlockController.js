@@ -42,11 +42,13 @@ class BlockController {
             method: 'POST',
             path: '/api/block',
             handler: (request, h) => {
-                let new_block = new BlockClass.Block("Another block");
+                const data = request.payload;
+                console.log(data);
+                let new_block = new BlockClass.Block(data);
                 new_block.height = this.blocks.length + 1;
                 new_block.hash = SHA256(JSON.stringify(new_block)).toString();
                 this.blocks.push(new_block);
-                return "Block added."
+                return data;
             }
         });
     }
