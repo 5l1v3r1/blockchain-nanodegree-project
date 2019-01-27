@@ -1,6 +1,7 @@
 'use strict';
 
 const Hapi = require('hapi');
+const Joi = require('joi');
 const BlockChain = require('./BlockChain.js');
 const Block = require('./Block.js');
 
@@ -23,7 +24,7 @@ server.route({
     }
 });
 
-// Add a route for block.
+// Add a route for reading block.
 server.route({
     method: 'GET',
     path: '/block/{height}',
@@ -36,6 +37,26 @@ server.route({
             return err;
         });
         return block_string;
+    }
+});
+
+// Add a route for adding block.
+server.route({
+    method: 'POST',
+    path: '/block',
+    handler: async (request, h) => {
+        let data = request.payload;
+        let newBlock = new Block.Block(data);
+        await myBlockChain.addBlock(newBlock);
+        let height = await myBlockChain.getBlockHeight();
+        let block_ = await myBlockChain.getBlock(height);
+        return JSON.stringify(block_).toString();
+
+    },
+    options: {
+        validate: {
+            payload: Joi.string().required()
+        }
     }
 });
 
