@@ -4,11 +4,8 @@ Use REST api to get and add blocks in the Blockchain.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
-### Prerequisites
-
-Node.js
+You will need Node.js to run this application. You can find it here:
+https://nodejs.org/en/
 
 ### Installing
 
