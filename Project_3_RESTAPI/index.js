@@ -45,7 +45,7 @@ server.route({
     method: 'POST',
     path: '/block',
     handler: async (request, h) => {
-        let data = request.payload;
+        let data = request.payload['body'];
         let newBlock = new Block.Block(data);
         await myBlockChain.addBlock(newBlock);
         let height = await myBlockChain.getBlockHeight();
@@ -55,7 +55,9 @@ server.route({
     },
     options: {
         validate: {
-            payload: Joi.string().required()
+            payload: Joi.object().keys({
+                body: Joi.string().required()
+            }).required()
         }
     }
 });
